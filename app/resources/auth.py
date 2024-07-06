@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from flask import request
 from app import db
-# from app.models import User
+from app.models import User, Topic
 
 users = [{"id": 1, "username": "user1", "email": "test@email.com" , "password": "password"},
         {"id": 2, "username": "user2", "email": "test2@email.com", "password": "password"}]
@@ -19,18 +19,23 @@ class LoginResource(Resource):
             return {"message": "Login successful"}, 200
         return {"message": "Invalid credentials"}, 401
     
-# class RegisterResource(Resource):
-#     def post(self):
-#         data = request.get_json()
-#         username = data.get('username')
-#         email = data.get('email')
-#         password = data.get('password')
+class RegisterResource(Resource):
+    def post(self):
+        data = request.get_json()
+        username = data.get('username')
+        email = data.get('email')
+        interested_topics_ids = data.get('interested_topics_ids')
+        password = data.get('password')
 
-#         if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
-#             return {"message": "User already exists"}, 400
+        if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
+            return {"message": "User already exists"}, 400
 
-#         new_user = User(username=username, email=email, password=password)
-#         db.session.add(new_user)
-#         db.session.commit()
+        new_user = User(username=username, email=email, password=password)
+        if interested_topics_ids:
+            topics = Topic.query.filter(Topic.id.in_(interested_topics_ids)).all()
+            new_user.interested_topics = topics
+            
+        db.session.add(new_user)
+        db.session.commit()
 
-#         return {"message": "User registered successfully"}, 201
+        return {"message": "User registered successfully"}, 201

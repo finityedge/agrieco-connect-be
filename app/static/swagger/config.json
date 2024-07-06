@@ -20,6 +20,10 @@
     {
       "name": "Auth",
       "description": "Authentication Operations"
+    },
+    {
+      "name": "Topics",
+      "description": "Topics Operations"
     }
   ],
   "paths": {
@@ -247,6 +251,68 @@
           }
         }
       }
+    },
+    "/topics": {
+      "get": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Retrieve all topics",
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Create a topic",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Agriculture"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "This is an agriculture topic"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -284,6 +350,24 @@
           "password": {
             "type": "string",
             "example": "password"
+          }
+        }
+      },
+      "Topic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Agriculture"
+          },
+          "description": {
+            "type": "string",
+            "example": "This is an agriculture topic"
           }
         }
       }
