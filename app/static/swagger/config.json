@@ -252,6 +252,62 @@
         }
       }
     },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "username"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "test@email.com"
+                  },
+                  "fullname": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password"
+                  },
+                  "interested_topics_ids": {
+                    "type": "string",
+                    "example": "1,2,3"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Register successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/topics": {
       "get": {
         "tags": [

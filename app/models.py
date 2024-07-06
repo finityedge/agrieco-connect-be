@@ -17,13 +17,15 @@ class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
+    fullname = db.Column(db.String(120), nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     feeds = db.relationship('Feed', backref='user', lazy=True)
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
     password_hash = db.Column(db.String(128), nullable=False)
 
-    def __init__(self, username, email, password):
+    def __init__(self, fullname, username, email, password):
         self.username = username
+        self.fullname = fullname
         self.email = email
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
@@ -33,6 +35,7 @@ class User(db.Model):
     def serialize(self):
         return {
             "id": self.id,
+            "fullname": self.fullname if self.fullname else "",
             "username": self.username,
             "email": self.email,
             "interested_topics": [topic.serialize() for topic in self.interested_topics]

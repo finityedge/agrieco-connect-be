@@ -23,6 +23,7 @@ class RegisterResource(Resource):
     def post(self):
         data = request.get_json()
         username = data.get('username')
+        fullname = data.get('fullname')
         email = data.get('email')
         interested_topics_ids = data.get('interested_topics_ids')
         password = data.get('password')
@@ -30,10 +31,14 @@ class RegisterResource(Resource):
         if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
             return {"message": "User already exists"}, 400
 
-        new_user = User(username=username, email=email, password=password)
+        new_user = User(fullname=fullname, username=username, email=email, password=password)
         if interested_topics_ids:
-            topics = Topic.query.filter(Topic.id.in_(interested_topics_ids)).all()
-            new_user.interested_topics = topics
+            interested_topics = Topic.query.filter(Topic.id.in_(interested_topics_ids)).all()
+            new_user.interested_topics.extend(interested_topics)
+
+            # topics = Topic.query.filter(Topic.id.in_(interested_topics_ids)).all()
+            # new_user.interested_topics = topics
+
             
         db.session.add(new_user)
         db.session.commit()
