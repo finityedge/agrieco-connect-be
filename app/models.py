@@ -20,6 +20,7 @@ class User(db.Model):
     fullname = db.Column(db.String(120), nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     feeds = db.relationship('Feed', backref='user', lazy=True)
+    role = db.Column(db.String(80), nullable=False, default='user')
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
     password_hash = db.Column(db.String(128), nullable=False)
 
@@ -38,6 +39,7 @@ class User(db.Model):
             "fullname": self.fullname if self.fullname else "",
             "username": self.username,
             "email": self.email,
+            "role": self.role,
             "interested_topics": [topic.serialize() for topic in self.interested_topics]
         }
 

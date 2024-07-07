@@ -2,6 +2,7 @@ from flask import Flask, jsonify, redirect
 from flask_restful import Api, MethodNotAllowed, NotFound
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from app.jwt_errors import jwt
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from app.config import Config
@@ -23,6 +24,7 @@ def create_app():
     db.init_app(app)
     bcrypt.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
 
     # Enable CORS
     CORS(app)

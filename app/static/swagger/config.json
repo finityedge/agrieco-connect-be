@@ -32,7 +32,7 @@
         "tags": [
           "Feeds"
         ],
-        "summary": "Retrieve all feed",
+        "summary": "Retrieve all feeds",
         "responses": {
           "200": {
             "description": "Successful",
@@ -55,22 +55,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "content": {
-                    "type": "string",
-                    "example": "This is a feed"
-                  },
-                  "images": {
-                    "type": "string",
-                    "example": "image.jpg, image2.jpg"
-                  },
-                  "user_id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 1
-                  }
-                }
+                "$ref": "#/components/schemas/Feed"
               }
             }
           }
@@ -81,17 +66,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/Feed"
                 }
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/feeds/{id}": {
@@ -123,14 +108,9 @@
             }
           },
           "404": {
-            "description": "Not found"
+            "description": "Feed not found"
           }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -145,24 +125,14 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "description": "ID of the feed to be updated"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string",
-                    "example": "SQL"
-                  }
-                },
-                "required": [
-                  "content"
-                ]
+                "$ref": "#/components/schemas/Feed"
               }
             }
           }
@@ -173,12 +143,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/Feed"
                 }
               }
             }
@@ -186,7 +151,12 @@
           "404": {
             "description": "Feed not found"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -201,8 +171,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "description": "ID of the feed to be deleted"
+            }
           }
         ],
         "responses": {
@@ -212,7 +181,64 @@
           "404": {
             "description": "Feed not found"
           }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/topics": {
+      "get": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Retrieve all topics",
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                }
+              }
+            }
+          }
         }
+      },
+      "post": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Create a topic",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Topic"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/auth/login": {
@@ -262,29 +288,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "username": {
-                    "type": "string",
-                    "example": "username"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "test@email.com"
-                  },
-                  "fullname": {
-                    "type": "string",
-                    "example": "John Doe"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "password"
-                  },
-                  "interested_topics_ids": {
-                    "type": "string",
-                    "example": "1,2,3"
-                  }
-                }
+                "$ref": "#/components/schemas/Register"
               }
             }
           }
@@ -292,68 +296,6 @@
         "responses": {
           "200": {
             "description": "Register successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/topics": {
-      "get": {
-        "tags": [
-          "Topics"
-        ],
-        "summary": "Retrieve all topics",
-        "responses": {
-          "200": {
-            "description": "Successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Topic"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Topics"
-        ],
-        "summary": "Create a topic",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "example": "Agriculture"
-                  },
-                  "description": {
-                    "type": "string",
-                    "example": "This is an agriculture topic"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Created successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -409,6 +351,31 @@
           }
         }
       },
+      "Register": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "username"
+          },
+          "email": {
+            "type": "string",
+            "example": "test@email.com"
+          },
+          "fullname": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "password": {
+            "type": "string",
+            "example": "password"
+          },
+          "interested_topics_ids": {
+            "type": "string",
+            "example": "1,2,3"
+          }
+        }
+      },
       "Topic": {
         "type": "object",
         "properties": {
@@ -426,6 +393,13 @@
             "example": "This is an agriculture topic"
           }
         }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

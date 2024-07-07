@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from flask import request
+from flask_jwt_extended import create_access_token
 from app import db
 from app.models import User, Topic
 
@@ -12,11 +13,12 @@ class LoginResource(Resource):
         username = data.get('username')
         password = data.get('password')
 
-        # user = User.query.filter_by(username=username).first()
-        user = next((user for user in users if user["username"] == username), None)
+        user = User.query.filter_by(username=username).first()
+        # user = next((user for user in users if user["username"] == username), None)
         # if user and user.check_password(password):
-        if user and user["password"] == password:
-            return {"message": "Login successful"}, 200
+        if user and user.check_password(password):
+            access_token = create_access_token(identity=user.id)
+            return  {"access_token": access_token}, 200
         return {"message": "Invalid credentials"}, 401
     
 class RegisterResource(Resource):
@@ -44,3 +46,9 @@ class RegisterResource(Resource):
         db.session.commit()
 
         return {"message": "User registered successfully"}, 201
+    
+def check_if_user_is_admin(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return False
+    return user.role == 'admin'

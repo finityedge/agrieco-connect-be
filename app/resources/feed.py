@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from flask import request
+from flask_jwt_extended import jwt_required
 from app import db
 # from app.models import UserFeed
 
@@ -17,7 +18,7 @@ class FeedResource(Resource):
             if feed["id"] == id:
                 return feed
         return None
-    
+    @jwt_required()
     def post(self):
         feed = request.json
         new_id = max(feed["id"] for feed in feeds) + 1
@@ -25,13 +26,15 @@ class FeedResource(Resource):
         feeds.append(feed)
         return feed
     
+    @jwt_required()
     def put(self, id):
         feed = request.json
         for _feed in feeds:
             if _feed["id"] == id:
                 _feed.update(feed)
                 return _feed
-            
+
+    @jwt_required()        
     def delete(self, id):
         global feeds
         feeds = [feed for feed in feeds if feed["id"] != id]
