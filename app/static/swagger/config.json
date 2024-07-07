@@ -383,6 +383,89 @@
           }
         }
       }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "summary": "Send password reset link to user's email",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "The email address of the user"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset link sent successfully"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Failed to send email"
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "summary": "Reset user's password using a reset code",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "reset_code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The reset code sent to the user's email"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "The email address of the user"
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "description": "The new password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successful"
+          },
+          "400": {
+            "description": "Invalid reset code"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
     }
   },
   "components": {

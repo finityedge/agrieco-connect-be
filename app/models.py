@@ -1,5 +1,6 @@
 from . import db, bcrypt
-from datetime import datetime
+from datetime import datetime, timedelta
+from random import choice
 
 # Define the association table for the many-to-many relationship between User and Topic
 user_topics = db.Table('user_topics',
@@ -21,6 +22,8 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     feeds = db.relationship('Feed', backref='user', lazy=True)
     role = db.Column(db.String(80), nullable=False, default='user')
+    reset_code = db.Column(db.String(32), nullable=True)
+    reset_code_expires_at = db.Column(db.DateTime, nullable=True)
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
     password_hash = db.Column(db.String(128), nullable=False)
 
@@ -28,10 +31,29 @@ class User(db.Model):
         self.username = username
         self.fullname = fullname
         self.email = email
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.password_hash = self.get_hashed_password(password)
+
+    def get_hashed_password(self, password):
+        hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        return hash
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+    
+    def generate_reset_code(self):
+        # generate a random code with alphanumeric characters
+        code = ''.join(choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') for i in range(32))
+        self.reset_code = code
+        self.reset_code_expires_at = datetime.utcnow() + timedelta(minutes=30)
+        db.session.commit()
+        return code
+    
+    def check_reset_code(self, code):
+        # check if the code exists and hasn't expired
+        if self.reset_code == code and self.reset_code_expires_at > datetime.utcnow():
+            return True
+        return False
+
 
     def serialize(self):
         return {

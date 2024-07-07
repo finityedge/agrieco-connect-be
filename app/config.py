@@ -6,3 +6,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PREFIX = '/api'
     UPLOAD_FOLDER = 'app/static/uploads'
+    

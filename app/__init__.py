@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from app.jwt_errors import jwt
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
+from flask_mail import Mail
 from app.config import Config
 from app.util.common import domain, port, prefix, build_swagger_config_json
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -13,18 +14,27 @@ from app.resources.swaggerConfig import SwaggerConfig
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 migrate = Migrate()
+mail = Mail()
 
 def create_app():
     app = Flask(__name__)
     
     # Load configuration
     app.config.from_object(Config)
+
+    # Flask-Mail configuration
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com' 
+    app.config['MAIL_PORT'] = 587 
+    app.config['MAIL_USE_TLS'] = True 
+    app.config['MAIL_USERNAME'] = 'francissteven1@gmail.com' 
+    app.config['MAIL_PASSWORD'] = 'qekxlvlqhsfvkigk' 
     
     # Initialize extensions
     db.init_app(app)
     bcrypt.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    mail.init_app(app)
 
     # Enable CORS
     CORS(app)
