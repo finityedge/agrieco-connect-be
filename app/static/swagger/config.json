@@ -53,23 +53,95 @@
         "summary": "Create a feed",
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Feed"
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "The content of the feed",
+                    "example": "This is a feed"
+                  },
+                  "photo": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary",
+                      "description": "An image file to upload"
+                    }
+                  },
+                  "topics": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "IDs of the topics to associate with the feed"
+                    },
+                    "description": "List of topic IDs"
+                  }
+                },
+                "required": [
+                  "content",
+                  "photo"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Feed"
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "content": {
+                      "type": "string",
+                      "example": "This is a feed"
+                    },
+                    "user_id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-07T10:00:00Z"
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-07T10:00:00Z"
+                    },
+                    "images": {
+                      "type": "string",
+                      "example": "uploads/image1.jpg,uploads/image2.jpg"
+                    },
+                    "is_active": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "topics": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Topic"
+                      }
+                    }
+                  }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -315,6 +387,24 @@
   },
   "components": {
     "schemas": {
+      "PostFeed": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "example": "This is a feed"
+          },
+          "images": {
+            "type": "string",
+            "example": "image.jpg, image2.jpg"
+          },
+          "user_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          }
+        }
+      },
       "Feed": {
         "type": "object",
         "properties": {

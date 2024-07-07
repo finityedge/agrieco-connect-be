@@ -74,14 +74,19 @@ class Feed(db.Model):
 
     def __repr__(self):
         return f'<Feed {self.id}>'
+    
+    def __init__(self, content, user_id, images=None):
+        self.content = content
+        self.user_id = user_id
+        self.images = images
 
     def serialize(self):
         return {
             "id": self.id,
             "content": self.content,
             "user_id": self.user_id,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
             "images": self.images,
             "is_active": self.is_active,
             "topics": [topic.serialize() for topic in self.topics]
