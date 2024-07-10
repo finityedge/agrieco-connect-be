@@ -24,6 +24,10 @@
     {
       "name": "Topics",
       "description": "Topics Operations"
+    },
+    {
+      "name": "Marketplaces",
+      "description": "Marketplaces Operations"
     }
   ],
   "paths": {
@@ -313,6 +317,116 @@
         ]
       }
     },
+    "/topics/{id}": {
+      "get": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Retrieve specific topic",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Update a topic",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Topic"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Delete a topic",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/auth/login": {
       "post": {
         "tags": [
@@ -466,6 +580,212 @@
           }
         }
       }
+    },
+    "/marketplaces/items": {
+      "get": {
+        "tags": [
+          "Marketplaces"
+        ],
+        "summary": "Retrieve all items",
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Marketplaces"
+        ],
+        "summary": "Create a new item",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "The name of the item",
+                    "example": "Apple"
+                  },
+                  "price": {
+                    "type": "number",
+                    "format": "float",
+                    "description": "The price of the item",
+                    "example": 1.5
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "The description of the item",
+                    "example": "Fresh red apple"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The image of the item"
+                  }
+                },
+                "required": [
+                  "name",
+                  "price",
+                  "description",
+                  "image"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/marketplaces/items/{id}": {
+      "get": {
+        "tags": [
+          "Marketplaces"
+        ],
+        "summary": "Retrieve a specific item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Marketplaces"
+        ],
+        "summary": "Update a item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Marketplaces"
+        ],
+        "summary": "Delete a item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Item deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -564,6 +884,38 @@
           "description": {
             "type": "string",
             "example": "This is an agriculture topic"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Apple"
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "example": 1.5
+          },
+          "description": {
+            "type": "string",
+            "example": "Fresh red apple"
+          },
+          "image": {
+            "type": "string",
+            "example": "static/uploads/items_images/apple.jpg"
+          },
+          "user_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
           }
         }
       }

@@ -1,6 +1,5 @@
 from flask import Blueprint
 from flask_restful import Api
-from flask_jwt_extended import jwt_required
 from app.resources.topic import TopicsGETResource, TopicResource, TopicsPOSTResource
 
 bp = Blueprint('topic', __name__)

@@ -24,6 +24,7 @@ class User(db.Model):
     role = db.Column(db.String(80), nullable=False, default='user')
     reset_code = db.Column(db.String(32), nullable=True)
     reset_code_expires_at = db.Column(db.DateTime, nullable=True)
+    products = db.relationship('Product', backref='user', lazy=True)  # Backref to Product
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
     password_hash = db.Column(db.String(128), nullable=False)
 
@@ -53,7 +54,6 @@ class User(db.Model):
         if self.reset_code == code and self.reset_code_expires_at > datetime.utcnow():
             return True
         return False
-
 
     def serialize(self):
         return {
@@ -112,4 +112,37 @@ class Feed(db.Model):
             "images": self.images,
             "is_active": self.is_active,
             "topics": [topic.serialize() for topic in self.topics]
+        }
+    
+
+class Product(db.Model):
+    __tablename__ = 'products'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    image = db.Column(db.Text, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Foreign key reference
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+
+    def __init__(self, name, price, user_id, description=None, image=None):
+        self.name = name
+        self.price = price
+        self.description = description
+        self.user_id = user_id
+        self.image = image
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "price": self.price,
+            "description": self.description,
+            "image": self.image,
+            "user_id": self.user_id,  # Return user ID instead of user object
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "is_active": self.is_active
         }
