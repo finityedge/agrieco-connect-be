@@ -3,7 +3,7 @@ from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.resources.auth import check_if_user_is_admin
 from app import db
-from app.models import Feed, Topic, User
+from app.models import Feed, Topic, User, Comment
 import os
 import re
 from app.cloudinary import upload_image
@@ -68,9 +68,6 @@ class FeedResource(Resource):
                 return {"message": "No selected file"}, 400
             
             if photo and allowed_file(photo.filename):
-                # filename = secure_filename(photo.filename)
-                # file_path = os.path.join(UPLOAD_FOLDER, filename)
-                # photo.save(file_path)
                 file_path = upload_image(photo)
                 uploaded_files.append(file_path)
         
@@ -130,5 +127,50 @@ class FeedResource(Resource):
             return "", 204
         return jsonify({"message": "Feed could not be deleted"}), 500
     
+class FeedCommentsResource(Resource):
+    @jwt_required(optional=True)
+    def get(self, id):
+        feed = Feed.query.get(id)
+        if feed:
+            return [comment.serialize() for comment in feed.comments]
+        return None
+    
+    @jwt_required()
+    def post(self, id):
+        user_id = get_jwt_identity()
+        if not user_id:
+            return {"message": "Unauthorized"}, 401
+        feed = Feed.query.get(id)
+        if feed:
+            data = request.get_json()
+            content = data.get('content')
+            new_comment = Comment(content=content, user_id=user_id, feed_id=id)
+            db.session.add(new_comment)
+            db.session.commit()
+            return new_comment.serialize(), 201
+        return jsonify({"message": "Feed not found"}), 404
+    
 
+class FeedLikesResource(Resource):
+    @jwt_required()
+    def put(self, id):
+        user_id = get_jwt_identity()
+        if not user_id:
+            return {"message": "Unauthorized"}, 401
+        feed = Feed.query.get(id)
+        if feed:
+            user = User.query.get(user_id)
+            if user in feed.likes:
+                feed.likes.remove(user)
+            else:
+                feed.likes.append(user)
+            db.session.commit()
+            return feed.serialize()
+        return jsonify({"message": "Feed not found"}), 404
+    
+    def get(self, id):
+        feed = Feed.query.get(id)
+        if feed:
+            return [like.serialize() for like in feed.likes]
+        return None
     

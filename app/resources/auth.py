@@ -30,7 +30,7 @@ class LoginResource(Resource):
             #     "access_token": access_token,
             #     "user": user_data
             # }), 200
-            return {"access_token": access_token, "user": user_data}, 200
+            return {"user": user.serialize_with_token(access_token)}, 200
         return {"message": "Invalid credentials"}, 401
     
 class ForgotPasswordResource(Resource):

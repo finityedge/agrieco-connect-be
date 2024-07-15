@@ -14,6 +14,11 @@ feed_topics = db.Table('feed_topics',
     db.Column('topic_id', db.Integer, db.ForeignKey('topics.id'), primary_key=True)
 )
 
+feed_likes = db.Table('feed_likes',
+    db.Column('feed_id', db.Integer, db.ForeignKey('feeds.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
+)
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -26,6 +31,7 @@ class User(db.Model):
     reset_code_expires_at = db.Column(db.DateTime, nullable=True)
     products = db.relationship('Product', backref='user', lazy=True)  # Backref to Product
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
+    likes = db.relationship('Feed', secondary=feed_likes, backref=db.backref('liked_by', lazy='dynamic'))
     password_hash = db.Column(db.String(128), nullable=False)
 
     def __init__(self, fullname, username, email, password):
@@ -64,6 +70,25 @@ class User(db.Model):
             "role": self.role,
             "interested_topics": [topic.serialize() for topic in self.interested_topics]
         }
+    
+    def serialize_with_token(self, token):
+        return {
+            "id": self.id,
+            "fullname": self.fullname if self.fullname else "",
+            "username": self.username,
+            "email": self.email,
+            "role": self.role,
+            "interested_topics": [topic.serialize() for topic in self.interested_topics],
+            "token": token
+        }
+    
+    def serialize_less_sensitive(self):
+        return {
+            "id": self.id,
+            "fullname": self.fullname if self.fullname else "",
+            "username": self.username,
+            "email": self.email
+        }
 
 class Topic(db.Model):
     __tablename__ = 'topics'
@@ -93,6 +118,8 @@ class Feed(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     topics = db.relationship('Topic', secondary=feed_topics, backref=db.backref('topic_feeds', lazy=True), lazy=True)
+    comments = db.relationship('Comment', backref='feed', lazy=True)
+    likes = db.relationship('User', secondary=feed_likes, backref=db.backref('liked_feeds', lazy='dynamic'))
 
     def __repr__(self):
         return f'<Feed {self.id}>'
@@ -111,7 +138,54 @@ class Feed(db.Model):
             "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
             "images": self.images,
             "is_active": self.is_active,
-            "topics": [topic.serialize() for topic in self.topics]
+            "topics": [topic.serialize() for topic in self.topics],
+            "likes": [user.serialize_less_sensitive() for user in self.likes],
+            "comments": [comment.serialize() for comment in self.comments]
+        }
+    
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    feed_id = db.Column(db.Integer, db.ForeignKey('feeds.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+
+    def __init__(self, content, user_id, feed_id):
+        self.content = content
+        self.user_id = user_id
+        self.feed_id = feed_id
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "content": self.content,
+            "user": User.query.get(self.user_id).serialize_less_sensitive(),
+            "feed_id": self.feed_id,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "is_active": self.is_active
+        }
+    
+class Like(db.Model):
+    __tablename__ = 'likes'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    feed_id = db.Column(db.Integer, db.ForeignKey('feeds.id'), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    def __init__(self, user_id, feed_id):
+        self.user_id = user_id
+        self.feed_id = feed_id
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user": User.query.get(self.user_id).serialize_less_sensitive(),
+            "feed_id": self.feed_id,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S")
         }
     
 
