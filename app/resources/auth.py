@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from flask import request
+from flask import request, jsonify
 from flask_jwt_extended import create_access_token
 from flask_mail import Message
 from app import db, mail
@@ -21,7 +21,15 @@ class LoginResource(Resource):
         # if user and user.check_password(password):
         if user and user.check_password(password):
             access_token = create_access_token(identity=user.id)
-            return  {"access_token": access_token}, 200
+            return  jsonify(access_token=access_token, 
+                            user_data={
+                                'id': user.id,
+                                'username': user.username,
+                                'email': user.email,
+                                'role': user.role,
+                                'fullname': user.fullname
+                            }
+            ), 200
         return {"message": "Invalid credentials"}, 401
     
 class ForgotPasswordResource(Resource):

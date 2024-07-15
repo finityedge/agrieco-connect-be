@@ -6,6 +6,7 @@ from app import db
 from app.models import Feed, Topic, User
 import os
 import re
+from app.cloudinary import upload_image
 
 # Configure Flask-Uploads
 # photos = UploadSet('photos', IMAGES)
@@ -67,9 +68,10 @@ class FeedResource(Resource):
                 return {"message": "No selected file"}, 400
             
             if photo and allowed_file(photo.filename):
-                filename = secure_filename(photo.filename)
-                file_path = os.path.join(UPLOAD_FOLDER, filename)
-                photo.save(file_path)
+                # filename = secure_filename(photo.filename)
+                # file_path = os.path.join(UPLOAD_FOLDER, filename)
+                # photo.save(file_path)
+                file_path = upload_image(photo)
                 uploaded_files.append(file_path)
         
         # Handle other form data

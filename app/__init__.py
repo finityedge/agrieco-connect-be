@@ -55,11 +55,6 @@ def create_app():
     )
 
     app.register_blueprint(swaggerui_blueprint)
-
-    @app.route('/images/<path:path>')
-    def send_images(path):
-        return send_from_directory('/static/uploads', path)
-
     
     # Register blueprints
     from .routes import api_routes, auth_routes, topic_routes, market_routes
