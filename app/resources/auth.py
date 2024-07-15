@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from flask import request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from flask_mail import Message
 from app import db, mail
 from app.models import User, Topic
@@ -17,19 +17,20 @@ class LoginResource(Resource):
         password = data.get('password')
 
         user = User.query.filter_by(username=username).first()
-        # user = next((user for user in users if user["username"] == username), None)
-        # if user and user.check_password(password):
         if user and user.check_password(password):
             access_token = create_access_token(identity=user.id)
-            return  jsonify(access_token=access_token, 
-                            user_data={
-                                'id': user.id,
-                                'username': user.username,
-                                'email': user.email,
-                                'role': user.role,
-                                'fullname': user.fullname
-                            }
-            ), 200
+            user_data = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "role": user.role,
+                "fullname": user.fullname,
+            }
+            # return jsonify({
+            #     "access_token": access_token,
+            #     "user": user_data
+            # }), 200
+            return {"access_token": access_token, "user": user_data}, 200
         return {"message": "Invalid credentials"}, 401
     
 class ForgotPasswordResource(Resource):
