@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, redirect
+from flask import Flask, jsonify, redirect, send_from_directory
 from flask_restful import Api, MethodNotAllowed, NotFound
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -55,6 +55,10 @@ def create_app():
     )
 
     app.register_blueprint(swaggerui_blueprint)
+
+    @app.route('/images/<path:path>')
+    def send_images(path):
+        return send_from_directory('/static/uploads', path)
 
     
     # Register blueprints
