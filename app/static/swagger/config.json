@@ -155,6 +155,39 @@
         ]
       }
     },
+    "/feeds/trending-keywords": {
+      "get": {
+        "tags": [
+          "Feeds"
+        ],
+        "summary": "Retrieve trending keywords",
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "keyword": {
+                        "type": "string",
+                        "example": "Agriculture"
+                      },
+                      "count": {
+                        "type": "integer",
+                        "example": 10
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/feeds/{id}": {
       "get": {
         "tags": [

@@ -7,6 +7,7 @@ from app.models import Feed, Topic, User, Comment
 import os
 import re
 from app.cloudinary import upload_image
+from app.trendingbot import TrendingKeywords
 
 # Configure Flask-Uploads
 # photos = UploadSet('photos', IMAGES)
@@ -174,3 +175,9 @@ class FeedLikesResource(Resource):
             return [like.serialize() for like in feed.likes]
         return None
     
+class FeedTrendingResource(Resource):
+    def get(self):
+        feeds = Feed.query.all()
+        feed_contents = [feed.content for feed in feeds]
+        trending_keywords = TrendingKeywords().get_trending_keywords(feed_contents)
+        return trending_keywords

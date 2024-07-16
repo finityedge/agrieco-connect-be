@@ -60,3 +60,4 @@ class TopicResource(Resource):
             db.session.commit()
             return "", 204
         return None
+    
