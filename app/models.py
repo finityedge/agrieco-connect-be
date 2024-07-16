@@ -19,6 +19,11 @@ feed_likes = db.Table('feed_likes',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
 )
 
+user_communities = db.Table('user_communities',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('community_id', db.Integer, db.ForeignKey('communities.id'), primary_key=True)
+)
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -67,7 +72,9 @@ class User(db.Model):
             "username": self.username,
             "email": self.email,
             "role": self.role,
-            "interested_topics": [topic.serialize() for topic in self.interested_topics]
+            "interested_topics": [topic.serialize() for topic in self.interested_topics],
+            "owned_communities": [community.serialize() for community in self.owned_communities],
+            "member_communities": [community.serialize() for community in self.member_communities]
         }
     
     def serialize_with_token(self, token):
@@ -263,4 +270,40 @@ class Event(db.Model):
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
             "is_active": self.is_active
+        }
+    
+class Community(db.Model):
+    __tablename__ = 'communities'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    category = db.Column(db.String(80), nullable=True)
+    location = db.Column(db.String(120), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    owner = db.relationship('User', backref='owned_communities', lazy=True)
+    members = db.relationship('User', secondary=user_communities, backref=db.backref('member_communities', lazy=True), lazy=True)
+    # feeds = db.relationship('Feed', backref='community', lazy=True)
+
+    def __init__(self, name, owner_id, description=None, category=None, location=None):
+        self.name = name
+        self.owner_id = owner_id
+        self.description = description
+        self.category = category
+        self.location = location
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "category": self.category,
+            "location": self.location,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "is_active": self.is_active,
+            "owner_id": self.owner_id,
+            "members": [user.serialize_less_sensitive() for user in self.members]
         }
