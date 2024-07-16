@@ -57,11 +57,12 @@ def create_app():
     app.register_blueprint(swaggerui_blueprint)
     
     # Register blueprints
-    from .routes import api_routes, auth_routes, topic_routes, market_routes
+    from .routes import api_routes, auth_routes, topic_routes, market_routes, event_routes
     app.register_blueprint(api_routes.bp, url_prefix=prefix)
     app.register_blueprint(auth_routes.bp, url_prefix=prefix)
     app.register_blueprint(topic_routes.bp, url_prefix=prefix)
     app.register_blueprint(market_routes.bp, url_prefix=prefix)
+    app.register_blueprint(event_routes.bp, url_prefix=prefix)
 
     api.add_resource(SwaggerConfig, '/swagger-config')
 

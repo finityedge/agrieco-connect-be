@@ -28,6 +28,10 @@
     {
       "name": "Marketplaces",
       "description": "Marketplaces Operations"
+    },
+    {
+      "name": "Events",
+      "description": "Events Operations"
     }
   ],
   "paths": {
@@ -1051,6 +1055,417 @@
           },
           "404": {
             "description": "Item not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/events": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Retrieve all events",
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                      },
+                      "title": {
+                        "type": "string",
+                        "example": "Event name"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Event description"
+                      },
+                      "location": {
+                        "type": "string",
+                        "example": "Event location"
+                      },
+                      "date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-07-07T10:00:00Z"
+                      },
+                      "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-07-07T10:00:00Z"
+                      },
+                      "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-07-07T10:00:00Z"
+                      },
+                      "image": {
+                        "type": "string",
+                        "example": "https://example.com/image.jpg"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Create a new event",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "The name of the event",
+                    "example": "Event name"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "The description of the event",
+                    "example": "Event description"
+                  },
+                  "location": {
+                    "type": "string",
+                    "description": "The location of the event",
+                    "example": "Event location"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The date of the event",
+                    "example": "2023-07-07T10:00:00Z"
+                  },
+                  "start_time": {
+                    "type": "string",
+                    "format": "string",
+                    "description": "The start time of the event",
+                    "example": "11:00AM"
+                  },
+                  "end_time": {
+                    "type": "string",
+                    "format": "string",
+                    "description": "The end time of the event",
+                    "example": "12:00PM"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The image of the event"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "location",
+                  "date",
+                  "start_time",
+                  "end_time"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 1
+                    },
+                    "title": {
+                      "type": "string",
+                      "example": "Event name"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Event description"
+                    },
+                    "location": {
+                      "type": "string",
+                      "example": "Event location"
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-07T10:00:00Z"
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "format": "string",
+                      "example": "11:00AM"
+                    },
+                    "end_time": {
+                      "type": "string",
+                      "format": "string",
+                      "example": "12:00PM"
+                    },
+                    "image": {
+                      "type": "string",
+                      "example": "https://example.com/image.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/events/{id}": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Retrieve a specific event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 1
+                    },
+                    "title": {
+                      "type": "string",
+                      "example": "Event name"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Event description"
+                    },
+                    "location": {
+                      "type": "string",
+                      "example": "Event location"
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-07T10:00:00Z"
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-07T10:00:00Z"
+                    },
+                    "end_time": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-07T10:00:00Z"
+                    },
+                    "image": {
+                      "type": "string",
+                      "example": "https://example.com/image.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Update an event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "The name of the event",
+                    "example": "Event name"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "The description of the event",
+                    "example": "Event description"
+                  },
+                  "location": {
+                    "type": "string",
+                    "description": "The location of the event",
+                    "example": "Event location"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The date of the event",
+                    "example": "2023-07-07T10:00:00Z"
+                  },
+                  "start_time": {
+                    "type": "string",
+                    "format": "string",
+                    "description": "The start time of the event",
+                    "example": "11:00AM"
+                  },
+                  "end_time": {
+                    "type": "string",
+                    "format": "string",
+                    "description": "The end time of the event",
+                    "example": "12:00PM"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The image of the event"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 1
+                    },
+                    "title": {
+                      "type": "string",
+                      "example": "Event name"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Event description"
+                    },
+                    "location": {
+                      "type": "string",
+                      "example": "Event location"
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-07T10:00:00Z"
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-07T10:00:00Z"
+                    },
+                    "end_time": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-07T10:00:00Z"
+                    },
+                    "image": {
+                      "type": "string",
+                      "example": "https://example.com/image.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Delete an event",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          },
+          "404": {
+            "description": "Event not found"
           }
         },
         "security": [

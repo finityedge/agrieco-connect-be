@@ -26,12 +26,13 @@ class User(db.Model):
     fullname = db.Column(db.String(120), nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     feeds = db.relationship('Feed', backref='user', lazy=True)
+    events = db.relationship('Event', backref='user', lazy=True)
     role = db.Column(db.String(80), nullable=False, default='user')
     reset_code = db.Column(db.String(32), nullable=True)
     reset_code_expires_at = db.Column(db.DateTime, nullable=True)
-    products = db.relationship('Product', backref='user', lazy=True)  # Backref to Product
+    products = db.relationship('Product', backref='user', lazy=True)
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
-    likes = db.relationship('Feed', secondary=feed_likes, backref=db.backref('liked_by', lazy='dynamic'))
+    likes = db.relationship('Feed', secondary=feed_likes, backref=db.backref('liked_by', lazy='dynamic'), overlaps="liked_by,likes")
     password_hash = db.Column(db.String(128), nullable=False)
 
     def __init__(self, fullname, username, email, password):
@@ -48,7 +49,6 @@ class User(db.Model):
         return bcrypt.check_password_hash(self.password_hash, password)
     
     def generate_reset_code(self):
-        # generate a random code with alphanumeric characters
         code = ''.join(choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') for i in range(32))
         self.reset_code = code
         self.reset_code_expires_at = datetime.utcnow() + timedelta(minutes=30)
@@ -56,7 +56,6 @@ class User(db.Model):
         return code
     
     def check_reset_code(self, code):
-        # check if the code exists and hasn't expired
         if self.reset_code == code and self.reset_code_expires_at > datetime.utcnow():
             return True
         return False
@@ -95,7 +94,7 @@ class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
-    feeds = db.relationship('Feed', secondary=feed_topics, backref=db.backref('feed_topics', lazy=True), lazy=True)
+    feeds = db.relationship('Feed', secondary=feed_topics, backref=db.backref('feed_topics', lazy=True), lazy=True, overlaps="feed_topics,feeds")
 
     def __init__(self, name, description=None):
         self.name = name
@@ -117,9 +116,9 @@ class Feed(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
-    topics = db.relationship('Topic', secondary=feed_topics, backref=db.backref('topic_feeds', lazy=True), lazy=True)
+    topics = db.relationship('Topic', secondary=feed_topics, backref=db.backref('topic_feeds', lazy=True), lazy=True, overlaps="feed_topics,feeds")
     comments = db.relationship('Comment', backref='feed', lazy=True)
-    likes = db.relationship('User', secondary=feed_likes, backref=db.backref('liked_feeds', lazy='dynamic'))
+    likes = db.relationship('User', secondary=feed_likes, backref=db.backref('liked_feeds', lazy='dynamic'), overlaps="liked_by,likes")
 
     def __repr__(self):
         return f'<Feed {self.id}>'
@@ -196,7 +195,7 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text, nullable=True)
     image = db.Column(db.Text, nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # Foreign key reference
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
@@ -215,7 +214,52 @@ class Product(db.Model):
             "price": self.price,
             "description": self.description,
             "image": self.image,
-            "user_id": self.user_id,  # Return user ID instead of user object
+            "user_id": self.user_id,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "is_active": self.is_active
+        }
+    
+
+class Event(db.Model):
+    __tablename__ = 'events'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    start_time = db.Column(db.String(80), nullable=False)
+    end_time = db.Column(db.String(80), nullable=False)
+    start_date = db.Column(db.DateTime, nullable=False)
+    location = db.Column(db.String(120), nullable=True)
+    price = db.Column(db.Float, nullable=True)
+    image = db.Column(db.Text, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+
+    def __init__(self, title, start_time, end_time, start_date, location, user_id, description=None, price=None, image=None):
+        self.title = title
+        self.description = description
+        self.start_time = start_time
+        self.end_time = end_time
+        self.start_date = start_date
+        self.location = location
+        self.price = price
+        self.image = image
+        self.user_id = user_id
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "date": self.start_date.strftime("%Y-%m-%d"),
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "price": self.price,
+            "location": self.location,
+            "image": self.image,
+            "user_id": self.user_id,
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
             "is_active": self.is_active
