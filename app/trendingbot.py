@@ -52,9 +52,6 @@ class TrendingKeywords:
 
         trending_keywords = {keyword: count for keyword, count in most_common}
         return trending_keywords
-<<<<<<< HEAD
-
-=======
     
     
     def get_random_facts(self):
@@ -70,4 +67,4 @@ class TrendingKeywords:
 
         response_text = response.choices[0].message['content'].strip()
         return response_text
->>>>>>> 4fa52c69eb0eff9ae8c4ae8ab7e8a63f1f686871
+

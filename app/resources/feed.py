@@ -213,8 +213,7 @@ class FeedTrendingResource(Resource):
         trending_keywords = TrendingKeywords().get_trending_keywords(feed_contents)
 
         return jsonify(trending_keywords)
-<<<<<<< HEAD
-=======
+
     
 class FeedsGETByTopicResource(Resource):
     @jwt_required(optional=True)
@@ -226,4 +225,3 @@ class FeedsGETByTopicResource(Resource):
         filtered_feeds = [feed.serialize() for feed in feeds if any(topic_name.lower() in topic.name.lower() for topic in feed.topics)]
 
         return filtered_feeds
->>>>>>> 4fa52c69eb0eff9ae8c4ae8ab7e8a63f1f686871
