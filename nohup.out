@@ -7243,3 +7243,23 @@ TypeError: jwt_required.<locals>.wrapper() got an unexpected keyword argument 'i
 127.0.0.1 - - [17/Jul/2024 17:37:13] "GET / HTTP/1.0" 302 -
 127.0.0.1 - - [17/Jul/2024 17:54:00] "GET /.env HTTP/1.0" 404 -
 127.0.0.1 - - [17/Jul/2024 17:54:01] "POST / HTTP/1.0" 405 -
+127.0.0.1 - - [17/Jul/2024 18:10:17] "GET /api/ HTTP/1.0" 200 -
+127.0.0.1 - - [17/Jul/2024 18:10:17] "GET /api/index.css HTTP/1.0" 200 -
+127.0.0.1 - - [17/Jul/2024 18:10:17] "GET /api/swagger-ui.css HTTP/1.0" 200 -
+127.0.0.1 - - [17/Jul/2024 18:10:17] "GET /api/swagger-ui-bundle.js HTTP/1.0" 200 -
+127.0.0.1 - - [17/Jul/2024 18:10:17] "GET /api/swagger-ui-standalone-preset.js HTTP/1.0" 200 -
+127.0.0.1 - - [17/Jul/2024 18:10:35] "GET /api/swagger-ui-standalone-preset.js HTTP/1.0" 200 -
+ * Detected change in '/home/ubuntu/projects/agrieco-connect-be/migrations/versions/ab07efb0a91f_.py', reloading
+ * Restarting with stat
+Traceback (most recent call last):
+  File "/home/ubuntu/projects/agrieco-connect-be/run.py", line 3, in <module>
+    app = create_app()
+          ^^^^^^^^^^^^
+  File "/home/ubuntu/projects/agrieco-connect-be/app/__init__.py", line 61, in create_app
+    from .routes import api_routes, auth_routes, topic_routes, market_routes, event_routes, community_routes, user_routes
+  File "/home/ubuntu/projects/agrieco-connect-be/app/routes/api_routes.py", line 3, in <module>
+    from app.resources.feed import FeedResource, FeedsGETResource, FeedCommentsResource, FeedLikesResource, FeedTrendingResource, FeedsGETByTopicResource
+  File "/home/ubuntu/projects/agrieco-connect-be/app/resources/feed.py", line 229
+    >>>>>>> 4fa52c69eb0eff9ae8c4ae8ab7e8a63f1f686871
+            ^
+SyntaxError: invalid decimal literal

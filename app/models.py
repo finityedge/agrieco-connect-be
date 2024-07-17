@@ -24,6 +24,11 @@ user_communities = db.Table('user_communities',
     db.Column('community_id', db.Integer, db.ForeignKey('communities.id'), primary_key=True)
 )
 
+follows = db.Table('follows',
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('followed_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
+)
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -39,6 +44,13 @@ class User(db.Model):
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
     likes = db.relationship('Feed', secondary=feed_likes, backref=db.backref('liked_by', lazy='dynamic'), overlaps="liked_by,likes")
     password_hash = db.Column(db.String(128), nullable=False)
+    following = db.relationship(
+        'User', secondary=follows,
+        primaryjoin=id == follows.c.follower_id,
+        secondaryjoin=id == follows.c.followed_id,
+        backref=db.backref('followers', lazy='dynamic'),
+        lazy='dynamic'
+    )
 
     def __init__(self, fullname, username, email, password):
         self.username = username
@@ -95,6 +107,16 @@ class User(db.Model):
             "username": self.username,
             "email": self.email
         }
+    
+    def followUnfollow(self, user):
+        if self.is_following(user):
+            self.following.remove(user)
+        else:
+            self.following.append(user)
+        db.session.commit()
+
+    def is_following(self, user):
+        return self.following.filter(follows.c.followed_id == user.id).count() > 0
 
 class Topic(db.Model):
     __tablename__ = 'topics'
@@ -118,6 +140,7 @@ class Feed(db.Model):
     __tablename__ = 'feeds'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    community_id = db.Column(db.Integer, db.ForeignKey('communities.id'), nullable=True)  # Allow null for feeds not under a community
     content = db.Column(db.Text, nullable=False)
     images = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -126,6 +149,8 @@ class Feed(db.Model):
     topics = db.relationship('Topic', secondary=feed_topics, backref=db.backref('topic_feeds', lazy=True), lazy=True, overlaps="feed_topics,feeds")
     comments = db.relationship('Comment', backref='feed', lazy=True)
     likes = db.relationship('User', secondary=feed_likes, backref=db.backref('liked_feeds', lazy='dynamic'), overlaps="liked_by,likes")
+    community = db.relationship('Community', backref=db.backref('feeds', lazy=True))  # Relationship to Community
+
 
     def __repr__(self):
         return f'<Feed {self.id}>'
@@ -202,17 +227,19 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text, nullable=True)
     image = db.Column(db.Text, nullable=True)
+    seller_information = db.Column(db.Text, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
-    def __init__(self, name, price, user_id, description=None, image=None):
+    def __init__(self, name, price, user_id, seller_information=None, description=None, image=None):
         self.name = name
         self.price = price
         self.description = description
         self.user_id = user_id
         self.image = image
+        self.seller_information = seller_information
 
     def serialize(self):
         return {
@@ -221,6 +248,7 @@ class Product(db.Model):
             "price": self.price,
             "description": self.description,
             "image": self.image,
+            "seller_information": self.seller_information,
             "user_id": self.user_id,
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
@@ -304,6 +332,6 @@ class Community(db.Model):
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
             "is_active": self.is_active,
-            "owner_id": self.owner_id,
-            "members": [user.serialize_less_sensitive() for user in self.members]
+            "owner": self.owner.serialize_less_sensitive(),
+            # "members": [user.serialize_less_sensitive() for user in self.members]
         }

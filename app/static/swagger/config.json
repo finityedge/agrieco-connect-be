@@ -36,6 +36,10 @@
     {
       "name": "Subcommunities",
       "description": "Subcommunities Operations"
+    },
+    {
+      "name": "Users",
+      "description": "Users Operations"
     }
   ],
   "paths": {
@@ -90,6 +94,11 @@
                       "description": "IDs of the topics to associate with the feed"
                     },
                     "description": "List of topic IDs"
+                  },
+                  "community_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "The ID of the community to associate with the feed"
                   }
                 },
                 "required": [
@@ -537,6 +546,154 @@
           },
           "404": {
             "description": "Feed not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/feeds?topic_name={topic_name}": {
+      "get": {
+        "tags": [
+          "Feeds"
+        ],
+        "summary": "Retrieve feeds by topic",
+        "parameters": [
+          {
+            "name": "topic_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Agriculture"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Feed"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Retrieve all users",
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Retrieve specific user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    },
+    "/users/{id}/follow": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Follow a user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Followed successfully"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/following": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Retrieve all users followed by the authenticated user",
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1531,7 +1688,7 @@
         "summary": "Create a new community",
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -1598,7 +1755,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/communities/{id}": {
@@ -1675,7 +1837,7 @@
         ],
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -1703,7 +1865,50 @@
               }
             }
           }
-        }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Community name"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Community description"
+                    },
+                    "location": {
+                      "type": "string",
+                      "example": "Community location"
+                    },
+                    "category": {
+                      "type": "string",
+                      "example": "Community category"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Community not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -1719,6 +1924,184 @@
               "type": "integer",
               "format": "int32"
             }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/communities/{id}/members": {
+      "get": {
+        "tags": [
+          "Subcommunities"
+        ],
+        "summary": "Retrieve all members of a community",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "username"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "test@email.com"
+                      },
+                      "fullname": {
+                        "type": "string",
+                        "example": "John Doe"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Subcommunities"
+        ],
+        "summary": "Join a community",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Joined successfully"
+          },
+          "404": {
+            "description": "Community not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/communities/{id}/feeds": {
+      "get": {
+        "tags": [
+          "Subcommunities"
+        ],
+        "summary": "Retrieve all feeds of a community",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Feed"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/communities/my-communities": {
+      "get": {
+        "tags": [
+          "Subcommunities"
+        ],
+        "summary": "Retrieve all communities joined by the authenticated user",
+        "responses": {
+          "200": {
+            "description": "Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Community name"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Community description"
+                      },
+                      "location": {
+                        "type": "string",
+                        "example": "Community location"
+                      },
+                      "category": {
+                        "type": "string",
+                        "example": "Community category"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
           }
         ]
       }
