@@ -7365,3 +7365,5 @@ Press CTRL+C to quit
 127.0.0.1 - - [17/Jul/2024 19:35:15] "GET /api/swagger-ui-bundle.js HTTP/1.0" 200 -
 127.0.0.1 - - [17/Jul/2024 19:35:22] "GET /api/swagger-config HTTP/1.0" 200 -
 127.0.0.1 - - [17/Jul/2024 19:35:22] "GET /api/favicon-32x32.png HTTP/1.0" 200 -
+127.0.0.1 - - [17/Jul/2024 19:36:35] "GET /api/feeds HTTP/1.0" 200 -
+127.0.0.1 - - [17/Jul/2024 19:36:36] "GET /api/topics HTTP/1.0" 200 -
