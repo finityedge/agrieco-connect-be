@@ -1,5 +1,9 @@
 from flask_restful import Resource
 from flask import request, jsonify
+<<<<<<< HEAD
+=======
+from sqlalchemy import func
+>>>>>>> b1b52961c068a4e76ca27ed8e8ee85a419899456
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.resources.auth import check_if_user_is_admin
 from app import db
@@ -177,7 +181,31 @@ class FeedLikesResource(Resource):
     
 class FeedTrendingResource(Resource):
     def get(self):
+<<<<<<< HEAD
         feeds = Feed.query.all()
         feed_contents = [feed.content for feed in feeds]
         trending_keywords = TrendingKeywords().get_trending_keywords(feed_contents)
         return trending_keywords
+=======
+        # Get feeds with most likes
+        most_liked_feeds = db.session.query(
+            Feed, func.count('feed_likes.c.user_id').label('like_count')
+        ).outerjoin(Feed.likes).group_by(Feed.id).order_by(func.count('feed_likes.c.user_id').desc()).limit(5).all()
+
+        # Get feeds with most comments
+        most_commented_feeds = db.session.query(
+            Feed, func.count('comments.id').label('comment_count')
+        ).outerjoin(Feed.comments).group_by(Feed.id).order_by(func.count('comments.id').desc()).limit(5).all()
+
+        # Combine the feeds, ensuring no duplicates
+        feed_ids = {feed.id for feed, _ in most_liked_feeds + most_commented_feeds}
+        feeds = db.session.query(Feed).filter(Feed.id.in_(feed_ids)).all()
+
+        # Extract the feed contents
+        feed_contents = [feed.content for feed in feeds]
+
+        # Get the trending keywords
+        trending_keywords = TrendingKeywords().get_trending_keywords(feed_contents)
+
+        return jsonify(trending_keywords)
+>>>>>>> b1b52961c068a4e76ca27ed8e8ee85a419899456

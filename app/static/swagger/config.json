@@ -6,10 +6,17 @@
   },
   "servers": [
     {
+<<<<<<< HEAD
       "url": "http://localhost:80/api"
     },
     {
       "url": "http://ec2-34-239-105-167.compute-1.amazonaws.com:80/api"
+=======
+      "url": "http://localhost:5000/api"
+    },
+    {
+      "url": "http://localhost:5000/api"
+>>>>>>> b1b52961c068a4e76ca27ed8e8ee85a419899456
     }
   ],
   "tags": [
