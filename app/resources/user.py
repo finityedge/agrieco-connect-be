@@ -1,38 +1,46 @@
 from flask_restful import Resource
 from flask import request
 from app import db
-# from app.models import User
-
-users = [{"id": 1, "username": "user1", "email": "test@email.com", "password": "password"},
-        {"id": 2, "username": "user2", "email": "test2@email.com", "password": "password"}]
+from app.models import User
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 class UsersGETResource(Resource):
     def get(self):
-        return users
+        return [user.serialize_less_sensitive() for user in User.query.all()]
     
 class UserResource(Resource):
     def get(self, id):
-        for user in users:
-            if user["id"] == id:
-                return user
+        user = User.query.get(id)
+        if user:
+            return user.serialize_less_sensitive()
         return None
-    
-    def post(self):
-        user = request.json
-        new_id = max(user["id"] for user in users) + 1
-        user["id"] = new_id
-        users.append(user)
-        return user
-    
-    def put(self, id):
-        user = request.json
-        for _user in users:
-            if _user["id"] == id:
-                _user.update(user)
-                return _user
             
     def delete(self, id):
-        global users
-        users = [user for user in users if user["id"] != id]
+        user = User.query.get(id)
+        if user:
+            db.session.delete(user)
+            db.session.commit()
         return "", 204
+    
+class UserFollowResource(Resource):
+    @jwt_required()
+    def put(self, id):
+        user_id = get_jwt_identity()
+        if not user_id:
+            return {"message": "Unauthorized"}, 401
+        user = User.query.get(user_id)
+        userToFollow = User.query.get(id)
+        if user:
+            user.followUnfollow(userToFollow)
+            return {'message': 'User followed'}, 200
+        return {'message': 'User not found'}, 404
+
+class UserFollowingResource(Resource):
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
+        if not user_id:
+            return {"message": "Unauthorized"}, 401
+        user = User.query.get(user_id)
+        return [user.serialize_less_sensitive() for user in user.following]

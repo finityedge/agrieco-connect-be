@@ -52,3 +52,18 @@ class TrendingKeywords:
 
         trending_keywords = {keyword: count for keyword, count in most_common}
         return trending_keywords
+    
+    
+    def get_random_facts(self):
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an AI that generates random facts about things to do with agriculture, poultry, farming or fishing. Please generate a random fact for me and start the response with the fact directly",
+                },
+            ],
+        )
+
+        response_text = response.choices[0].message['content'].strip()
+        return response_text

@@ -1,8 +1,8 @@
 from flask_restful import Resource
-from flask import request
+from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
-from app.models import Community
+from app.models import Community, Feed, User
 
 class CommunitiesGETResource(Resource):
     def get(self):
@@ -21,7 +21,10 @@ class CommunitiesPOSTResource(Resource):
             description = data.get('description')
             location = data.get('location')
             category = data.get('category')
-            new_community = Community(name=name, description=description, location=location, category=category, user_id=user_id)
+            new_community = Community(name=name, description=description, location=location, category=category, owner_id=user_id)
+            # add user to community
+            user = User.query.get(user_id)
+            new_community.members.append(user)
             db.session.add(new_community)
             db.session.commit()
             return new_community.serialize(), 201
@@ -43,7 +46,7 @@ class CommunityResource(Resource):
             community = request.json
             _community = Community.query.get(id)
             if _community:
-                if _community.user_id != user_id:
+                if _community.owner_id != user_id:
                     return {"message": "You are not authorized to perform this action"}, 403
                 _community.name = community["name"]
                 _community.description = community["description"]
@@ -61,9 +64,55 @@ class CommunityResource(Resource):
         user_id = get_jwt_identity()
         community = Community.query.get(id)
         if community:
-            if community.user_id != user_id:
+            if community.owner_id != user_id:
                 return {"message": "You are not authorized to perform this action"}, 403
             db.session.delete(community)
             db.session.commit()
             return "", 204
         return None
+
+class CommunityGETMembersResource(Resource):
+    def get(self, id):
+        community = Community.query.get(id)
+        if community:
+            return [member.serialize() for member in community.members]
+        return None
+    
+
+class CommunityPUTMembersResource(Resource):
+    @jwt_required()
+    def put(self, id):
+        user_id = get_jwt_identity()
+        community = Community.query.get(id)
+        if community:
+            if user_id:
+                user = User.query.get(user_id)
+                if not user:
+                    return {"message": "User not found"}, 404
+                community.members.append(user)
+                db.session.commit()
+                return {"message": "User added to community"}, 200
+        return None
+    
+class CommunityGETMyCommunitiesResource(Resource):
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        if not user:
+            return {"message": "User not found"}, 404
+
+        member_communities = [community.serialize() for community in user.member_communities]
+        return jsonify(member_communities)
+    
+class CommunityFeedsResource(Resource):
+    @jwt_required(optional=True)
+    def get(self, id):
+        community = Community.query.get(id)
+        if not community:
+            return {"message": "Community not found"}, 404
+
+        feeds = Feed.query.filter_by(community_id=id).order_by(Feed.created_at.desc()).all()
+        return jsonify([feed.serialize() for feed in feeds])
+

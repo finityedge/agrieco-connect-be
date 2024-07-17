@@ -9,6 +9,7 @@ import os
 import re
 from app.cloudinary import upload_image
 from app.trendingbot import TrendingKeywords
+from datetime import datetime
 
 # Configure Flask-Uploads
 # photos = UploadSet('photos', IMAGES)
@@ -30,12 +31,18 @@ class FeedsGETResource(Resource):
     def get(self):
         # i want to return all feeds sorted by date in descending order if user is not logged in and logged in user we only return feeds that are associated with the topics they are interested in
         user_id = get_jwt_identity()
+        random_fact = TrendingKeywords().get_random_facts()
+        random_feed = Feed(content=random_fact, images=None, user_id=None)
+        random_feed.created_at = datetime.utcnow()
+        random_feed.updated_at = datetime.utcnow()
         if user_id:
             user = User.query.get(user_id)
             topics = user.interested_topics
             feeds = Feed.query.filter(Feed.topics.any(Topic.id.in_([topic.id for topic in topics]))).order_by(Feed.created_at.desc()).all()
+            feeds.insert(0, random_feed)
         else:
             feeds = Feed.query.order_by(Feed.created_at.desc()).all()
+            feeds.insert(0, random_feed)
         return [feed.serialize() for feed in feeds]
         
     
@@ -76,11 +83,13 @@ class FeedResource(Resource):
         # Handle other form data
         content = request.form.get('content')
         topics_str = request.form.get('topics')
+        community_id = request.form.get('community_id') or None
         
         # Split the topics string by commas and convert to integers
         topics_ids = [int(topic_id.strip()) for topic_id in topics_str.split(',')] if topics_str else []
         
         new_feed = Feed(content=content, user_id=user_id, images=",".join(uploaded_files))
+        new_feed.community_id = community_id
         
         # Associate topics with the feed
         if topics_ids:
@@ -199,3 +208,14 @@ class FeedTrendingResource(Resource):
         trending_keywords = TrendingKeywords().get_trending_keywords(feed_contents)
 
         return jsonify(trending_keywords)
+    
+class FeedsGETByTopicResource(Resource):
+    @jwt_required(optional=True)
+    def get(self, topic_name):
+        topics = Topic.query.filter(func.lower(Topic.name).contains(topic_name.lower())).all()
+
+        feeds = Feed.query.filter(Feed.topics.any(Topic.id.in_([topic.id for topic in topics]))).order_by(Feed.created_at.desc()).all()
+
+        filtered_feeds = [feed.serialize() for feed in feeds if any(topic_name.lower() in topic.name.lower() for topic in feed.topics)]
+
+        return filtered_feeds
