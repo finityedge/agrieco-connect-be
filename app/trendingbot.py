@@ -1,35 +1,17 @@
 import openai
 import json
 from collections import Counter
-<<<<<<< HEAD
-
-openai.api_key = 'sk-proj-wxPVT91fhdm62sqn6HwxT3BlbkFJ0WZJhrqshrR9ZyeVyd3J'
-=======
 from app.models import Topic
 import re
 from app.config import Config
 
 openai.api_key = Config.OPENAI_API_KEY
->>>>>>> b1b52961c068a4e76ca27ed8e8ee85a419899456
 
 class TrendingKeywords:
     def __init__(self):
         pass
 
     def process_text(self, text):
-<<<<<<< HEAD
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "Extract key phrases from the following text."},
-                {"role": "user", "content": text}
-            ]
-        )
-        keywords = response.choices[0].message['content'].strip().split('\n')
-        return [kw.strip() for kw in keywords if kw.strip()]
-
-    def get_trending_keywords(self, feed_contents, top_n=10):
-=======
         topics = Topic.query.all()
         topic_names = [topic.name for topic in topics]
 
@@ -60,7 +42,6 @@ class TrendingKeywords:
         return keywords
 
     def get_trending_keywords(self, feed_contents, top_n=5):
->>>>>>> b1b52961c068a4e76ca27ed8e8ee85a419899456
         all_keywords = []
         for content in feed_contents:
             keywords = self.process_text(content)
@@ -70,8 +51,5 @@ class TrendingKeywords:
         most_common = keyword_counts.most_common(top_n)
 
         trending_keywords = {keyword: count for keyword, count in most_common}
-<<<<<<< HEAD
-        return json.dumps(trending_keywords, indent=4)
-=======
         return trending_keywords
->>>>>>> b1b52961c068a4e76ca27ed8e8ee85a419899456
+

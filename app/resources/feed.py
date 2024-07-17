@@ -1,9 +1,6 @@
 from flask_restful import Resource
 from flask import request, jsonify
-<<<<<<< HEAD
-=======
 from sqlalchemy import func
->>>>>>> b1b52961c068a4e76ca27ed8e8ee85a419899456
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.resources.auth import check_if_user_is_admin
 from app import db
@@ -181,12 +178,11 @@ class FeedLikesResource(Resource):
     
 class FeedTrendingResource(Resource):
     def get(self):
-<<<<<<< HEAD
         feeds = Feed.query.all()
         feed_contents = [feed.content for feed in feeds]
         trending_keywords = TrendingKeywords().get_trending_keywords(feed_contents)
         return trending_keywords
-=======
+
         # Get feeds with most likes
         most_liked_feeds = db.session.query(
             Feed, func.count('feed_likes.c.user_id').label('like_count')
@@ -208,4 +204,3 @@ class FeedTrendingResource(Resource):
         trending_keywords = TrendingKeywords().get_trending_keywords(feed_contents)
 
         return jsonify(trending_keywords)
->>>>>>> b1b52961c068a4e76ca27ed8e8ee85a419899456

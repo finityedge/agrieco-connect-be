@@ -6,9 +6,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PREFIX = '/api'
     UPLOAD_FOLDER = 'app/static/uploads'
-<<<<<<< HEAD
-    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY') or 'sk-proj-wxPVT91fhdm62sqn6HwxT3BlbkFJ0WZJhrqshrR9ZyeVyd3J'
-=======
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
->>>>>>> b1b52961c068a4e76ca27ed8e8ee85a419899456
-    
