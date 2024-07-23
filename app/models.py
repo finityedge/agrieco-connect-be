@@ -314,7 +314,7 @@ class Community(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     owner = db.relationship('User', backref='owned_communities', lazy=True)
     members = db.relationship('User', secondary=user_communities, backref=db.backref('member_communities', lazy=True), lazy=True)
-    feeds = db.relationship('Feed', backref='community', lazy=True)
+    # feeds = db.relationship('Feed', backref='community', lazy=True)
 
     def __init__(self, name, owner_id, description=None, category=None, location=None):
         self.name = name

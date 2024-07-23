@@ -6,10 +6,10 @@
   },
   "servers": [
     {
-      "url": "http://localhost:5000/api"
+      "url": "http://localhost:443/api"
     },
     {
-      "url": "https://localhost:5000/api"
+      "url": "https://agrieco-connect-be.azurewebsites.net/api"
     }
   ],
   "tags": [
