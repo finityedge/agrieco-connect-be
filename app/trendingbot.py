@@ -67,3 +67,4 @@ class TrendingKeywords:
 
         response_text = response.choices[0].message['content'].strip()
         return response_text
+
