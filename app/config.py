@@ -7,4 +7,6 @@ class Config:
     PREFIX = '/api'
     UPLOAD_FOLDER = 'app/static/uploads'
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+    HOST = 'https://agrieco-connect-be.azurewebsites.net'
+    PORT = 443
     
