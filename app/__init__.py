@@ -47,7 +47,7 @@ def create_app():
     build_swagger_config_json()
     swaggerui_blueprint = get_swaggerui_blueprint(
         prefix,
-        f'https://{domain}:{port}{prefix}/swagger-config',
+        f'http://{domain}:{port}{prefix}/swagger-config',
         config={
             'app_name': "Agrieco Connect API",
             "layout": "BaseLayout",
