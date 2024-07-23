@@ -29,6 +29,11 @@ follows = db.Table('follows',
     db.Column('followed_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
 )
 
+event_attendees = db.Table('event_attendees',
+    db.Column('event_id', db.Integer, db.ForeignKey('events.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
+)
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -267,7 +272,7 @@ class Event(db.Model):
     location = db.Column(db.String(120), nullable=True)
     price = db.Column(db.Float, nullable=True)
     image = db.Column(db.Text, nullable=True)
-    attendees = db.relationship('User', secondary='event_attendees', backref=db.backref('events', lazy=True), lazy=True)
+    attendees = db.relationship('User', secondary=event_attendees, backref=db.backref('attending_events', lazy=True), lazy=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
