@@ -190,7 +190,7 @@ class FeedTrendingResource(Resource):
         feeds = Feed.query.all()
         feed_contents = [feed.content for feed in feeds]
         trending_keywords = TrendingKeywords().get_trending_keywords(feed_contents)
-        return trending_keywords
+        # return trending_keywords
 
         # Get feeds with most likes
         most_liked_feeds = db.session.query(

@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 import os
 import re
+from cloudinary import upload_image
 
 from app.models import Product, User
 
@@ -40,14 +41,9 @@ class ProductsPOSTResource(Resource):
         if image.filename == '':
             return {"message": "No selected file"}, 400
         
-        # Ensure the upload folder exists
-        if not os.path.exists(UPLOAD_FOLDER):
-            os.makedirs(UPLOAD_FOLDER)
         
         if image and allowed_file(image.filename):
-            filename = secure_filename(image.filename)
-            file_path = os.path.join(UPLOAD_FOLDER, filename)
-            image.save(os.path.join(UPLOAD_FOLDER, filename))
+            file_path = upload_image(image)
         else:
             return {"message": "File not allowed"}, 400
         
@@ -78,15 +74,19 @@ class ProductResource(Resource):
         price = data.get('price')
         description = data.get('description')
         image = data.get('image')
+        
         product = Product.query.get(id)
+
         if product:
             product.name = name
             product.price = price
             product.description = description
             product.image = image
+
             db.session.commit()
             return product.serialize()
         return None
+    
     @jwt_required
     def delete(self, id):
         product = Product.query.get(id)
