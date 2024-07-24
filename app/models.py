@@ -49,18 +49,12 @@ class User(db.Model):
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
     likes = db.relationship('Feed', secondary=feed_likes, backref=db.backref('liked_by', lazy='dynamic'), overlaps="liked_by,likes")
     password_hash = db.Column(db.String(128), nullable=False)
+    
     following = db.relationship(
         'User', secondary=follows,
         primaryjoin=id == follows.c.follower_id,
         secondaryjoin=id == follows.c.followed_id,
-        backref=db.backref('followed_by', lazy='dynamic'),
-        lazy='dynamic'
-    )
-    followed_by = db.relationship(
-        'User', secondary=follows,
-        primaryjoin=id == follows.c.followed_id,
-        secondaryjoin=id == follows.c.follower_id,
-        backref=db.backref('follows', lazy='dynamic'),
+        backref=db.backref('followers', lazy='dynamic'),  # Changed 'followed_by' to 'followers'
         lazy='dynamic'
     )
 
@@ -71,7 +65,8 @@ class User(db.Model):
         self.password_hash = self.get_hashed_password(password)
 
     def get_hashed_password(self, password):
-        return bcrypt.generate_password_hash(password).decode('utf-8')
+        hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        return hash
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
@@ -117,7 +112,7 @@ class User(db.Model):
             "fullname": self.fullname if self.fullname else "",
             "username": self.username,
             "email": self.email,
-            "followers": self.followed_by.count(),
+            "followers": self.followers.count(),  # Changed 'followed_by' to 'followers'
         }
     
     def followUnfollow(self, user):
@@ -394,3 +389,9 @@ class AppointmentAvailability(db.Model):
             "is_active": self.is_active,
             "is_booked": self.is_booked
         }
+
+class Test(db.Model):
+    __tablename__ = 'tests'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=True)
