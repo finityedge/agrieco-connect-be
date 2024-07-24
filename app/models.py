@@ -53,14 +53,14 @@ class User(db.Model):
         'User', secondary=follows,
         primaryjoin=id == follows.c.follower_id,
         secondaryjoin=id == follows.c.followed_id,
-        backref=db.backref('followers', lazy='dynamic'),
+        backref=db.backref('followed_by', lazy='dynamic'),
         lazy='dynamic'
     )
-    followers = db.relationship(
+    followed_by = db.relationship(
         'User', secondary=follows,
         primaryjoin=id == follows.c.followed_id,
         secondaryjoin=id == follows.c.follower_id,
-        backref=db.backref('following', lazy='dynamic'),
+        backref=db.backref('follows', lazy='dynamic'),
         lazy='dynamic'
     )
 
@@ -71,8 +71,7 @@ class User(db.Model):
         self.password_hash = self.get_hashed_password(password)
 
     def get_hashed_password(self, password):
-        hash = bcrypt.generate_password_hash(password).decode('utf-8')
-        return hash
+        return bcrypt.generate_password_hash(password).decode('utf-8')
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
@@ -118,7 +117,7 @@ class User(db.Model):
             "fullname": self.fullname if self.fullname else "",
             "username": self.username,
             "email": self.email,
-            "followers": self.followers.count(),
+            "followers": self.followed_by.count(),
         }
     
     def followUnfollow(self, user):
