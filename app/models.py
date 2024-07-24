@@ -49,7 +49,6 @@ class User(db.Model):
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
     likes = db.relationship('Feed', secondary=feed_likes, backref=db.backref('liked_by', lazy='dynamic'), overlaps="liked_by,likes")
     password_hash = db.Column(db.String(128), nullable=False)
-    appointments = db.relationship('AppointmentAvailability', backref='user', lazy=True)
     following = db.relationship(
         'User', secondary=follows,
         primaryjoin=id == follows.c.follower_id,

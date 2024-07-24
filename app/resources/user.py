@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from flask import request
 from app import db
-from app.models import User
+from app.models import User, AppointmentAvailability
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
@@ -51,6 +51,6 @@ class UserAppointmentsResource(Resource):
         if not user_id:
             return {"message": "Unauthorized"}, 401
         
-        user = User.query.get(user_id)
-        return [appointment.serialize() for appointment in user.appointments]
+        appointments = AppointmentAvailability.query.filter_by(user_id=user_id).all()
+        return [appointment.serialize() for appointment in appointments]
     
