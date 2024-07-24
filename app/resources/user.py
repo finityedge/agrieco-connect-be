@@ -43,4 +43,14 @@ class UserFollowingResource(Resource):
         if not user_id:
             return {"message": "Unauthorized"}, 401
         user = User.query.get(user_id)
-        return [user.serialize_less_sensitive() for user in user.following]
+        
+class UserAppointmentsResource(Resource):
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
+        if not user_id:
+            return {"message": "Unauthorized"}, 401
+        
+        user = User.query.get(user_id)
+        return [appointment.serialize() for appointment in user.appointments]
+    

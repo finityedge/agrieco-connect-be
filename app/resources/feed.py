@@ -225,3 +225,9 @@ class FeedsGETByTopicResource(Resource):
         filtered_feeds = [feed.serialize() for feed in feeds if any(topic_name.lower() in topic.name.lower() for topic in feed.topics)]
 
         return filtered_feeds
+    
+class CommunityFeedsGETResource(Resource):
+    @jwt_required()
+    def get(self, community_id):
+        feeds = Feed.query.filter_by(community_id=community_id).order_by(Feed.created_at.desc()).all()
+        return [feed.serialize() for feed in feeds]

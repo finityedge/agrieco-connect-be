@@ -49,11 +49,19 @@ class User(db.Model):
     interested_topics = db.relationship('Topic', secondary=user_topics, backref=db.backref('interested_users', lazy=True), lazy=True)
     likes = db.relationship('Feed', secondary=feed_likes, backref=db.backref('liked_by', lazy='dynamic'), overlaps="liked_by,likes")
     password_hash = db.Column(db.String(128), nullable=False)
+    appointments = db.relationship('AppointmentAvailability', backref='user', lazy=True)
     following = db.relationship(
         'User', secondary=follows,
         primaryjoin=id == follows.c.follower_id,
         secondaryjoin=id == follows.c.followed_id,
         backref=db.backref('followers', lazy='dynamic'),
+        lazy='dynamic'
+    )
+    followers = db.relationship(
+        'User', secondary=follows,
+        primaryjoin=id == follows.c.followed_id,
+        secondaryjoin=id == follows.c.follower_id,
+        backref=db.backref('following', lazy='dynamic'),
         lazy='dynamic'
     )
 
@@ -110,7 +118,8 @@ class User(db.Model):
             "id": self.id,
             "fullname": self.fullname if self.fullname else "",
             "username": self.username,
-            "email": self.email
+            "email": self.email,
+            "followers": self.followers.count(),
         }
     
     def followUnfollow(self, user):
@@ -339,7 +348,7 @@ class Community(db.Model):
             "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
             "is_active": self.is_active,
             "owner": self.owner.serialize_less_sensitive(),
-            # "members": [user.serialize_less_sensitive() for user in self.members]
+            "members_count": len(self.members)
         }
 
 class AppointmentAvailability(db.Model):
@@ -350,7 +359,8 @@ class AppointmentAvailability(db.Model):
     specialty = db.Column(db.String(80), nullable=True)
     location = db.Column(db.String(120), nullable=True)
     experience_level = db.Column(db.String(80), nullable=True)
-    availability_time = db.Column(db.String(80), nullable=False)
+    availability_slot_start = db.Column(db.DateTime, nullable=False)
+    availability_slot_end = db.Column(db.DateTime, nullable=False)
     contact_information = db.Column(db.String(120), nullable=True)
     bio = db.Column(db.Text, nullable=True)
     is_booked = db.Column(db.Boolean, nullable=False, default=False)
@@ -377,7 +387,8 @@ class AppointmentAvailability(db.Model):
             "specialty": self.specialty,
             "location": self.location,
             "experience_level": self.experience_level,
-            "availability_time": self.availability_time,
+            "availability_slot_start": self.availability_slot_start.strftime("%Y-%m-%d %H:%M:%S"),
+            "availability_slot_end": self.availability_slot_end.strftime("%Y-%m-%d %H:%M:%S"),
             "contact_information": self.contact_information,
             "bio": self.bio,
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S"),

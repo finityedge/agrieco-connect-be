@@ -52,7 +52,8 @@ class AppointmentAvailabilityResource(Resource):
             availability = request.form
 
             availability = AppointmentAvailability.query.get(id)
-            availability.availability_time = availability["availability_time"]
+            availability.availability_slot_start = availability.get("availabilitySlotStart")
+            availability.availability_slot_end = availability.get("availabilitySlotEnd")
             availability.company_name = availability.get("company_name")
             availability.location = availability.get("location")
             availability.contact_information = availability.get("contact_information")
