@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 import os
 import re
-from cloudinary import upload_image
+from app.cloudinary import upload_image
 
 from app.models import Product, User
 
@@ -74,7 +74,7 @@ class ProductResource(Resource):
         price = data.get('price')
         description = data.get('description')
         image = data.get('image')
-        
+
         product = Product.query.get(id)
 
         if product:
