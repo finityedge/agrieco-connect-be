@@ -341,7 +341,8 @@ class Community(db.Model):
             "updated_at": self.updated_at.strftime("%Y-%m-%d %H:%M:%S"),
             "is_active": self.is_active,
             "owner": self.owner.serialize_less_sensitive(),
-            "members_count": len(self.members)
+            "members_count": len(self.members),
+            "member_ids": [member.id for member in self.members]
         }
 
 class AppointmentAvailability(db.Model):
