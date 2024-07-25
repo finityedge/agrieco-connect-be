@@ -352,8 +352,8 @@ class AppointmentAvailability(db.Model):
     specialty = db.Column(db.String(80), nullable=True)
     location = db.Column(db.String(120), nullable=True)
     experience_level = db.Column(db.String(80), nullable=True)
-    availability_slot_start = db.Column(db.DateTime, nullable=False)
-    availability_slot_end = db.Column(db.DateTime, nullable=False)
+    availability_slot_start = db.Column(db.DateTime, nullable=True)
+    availability_slot_end = db.Column(db.DateTime, nullable=True)
     contact_information = db.Column(db.String(120), nullable=True)
     bio = db.Column(db.Text, nullable=True)
     is_booked = db.Column(db.Boolean, nullable=False, default=False)
@@ -362,13 +362,14 @@ class AppointmentAvailability(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 
-    def __init__(self, user_id, availability_time, company_name=None, specialty=None, location=None, experience_level=None, contact_information=None, bio=None):
+    def __init__(self, user_id, availability_slot_start, availability_slot_end, company_name=None, specialty=None, location=None, experience_level=None, contact_information=None, bio=None):
         self.user_id = user_id
         self.company_name = company_name
         self.specialty = specialty
         self.location = location
         self.experience_level = experience_level
-        self.availability_time = availability_time
+        self.availability_slot_start = availability_slot_start
+        self.availability_slot_end = availability_slot_end
         self.contact_information = contact_information
         self.bio = bio
 
